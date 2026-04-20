@@ -4,7 +4,7 @@
     {
         private readonly IWebHostEnvironment _environment;
         private readonly ILogger<FileStorageService> _logger;
-        private const long MaxFileSize = 10 * 1024 * 1024; // 10MB
+        private const long MaxFileSize = 10 * 1024 * 1024; /// 10MB limit
 
         public FileStorageService(IWebHostEnvironment environment, ILogger<FileStorageService> logger)
         {
@@ -20,16 +20,16 @@
             if (!IsValidPdfFile(file))
                 throw new ArgumentException("Only PDF files are allowed");
 
-            // Create uploads folder if it doesn't exist
+            /// Create uploads folder if it doesn't exist
             var uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads", folder);
             Directory.CreateDirectory(uploadsFolder);
 
-            // Generate unique filename with GUID only (cleaner)
+            /// Generate unique filename with GUID only (cleaner)
             var fileExtension = Path.GetExtension(file.FileName);
             var uniqueFileName = $"{Guid.NewGuid()}{fileExtension}";
             var filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
-            // Save file
+            /// Save file
             using (var fileStream = new FileStream(filePath, FileMode.Create))
             {
                 await file.CopyToAsync(fileStream);
@@ -37,8 +37,8 @@
 
             _logger.LogInformation("File saved: {FileName} to folder: {Folder}", uniqueFileName, folder);
 
-            // FIXED: Return relative path WITHOUT "uploads" prefix (since Download adds it)
-            // Return format: "contracts/guid.pdf"
+            ///  Return relative path WITHOUT "uploads" prefix (since Download adds it)
+            /// Return format: "contracts/guid.pdf"
             return Path.Combine(folder, uniqueFileName).Replace("\\", "/");
         }
 
@@ -96,7 +96,7 @@
             if (extension != ".pdf")
                 return false;
 
-            // Check content type
+            /// Check content type
             if (file.ContentType != "application/pdf")
                 return false;
 

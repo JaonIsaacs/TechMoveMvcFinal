@@ -1,6 +1,9 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
+///service patter refeced via :https://learn.microsoft.com/en-za/aspnet/core/mvc/overview?view=aspnetcore-10.0&WT.mc_id=dotnet-35129-websit
+/// 
+
 namespace TechMove.Services
 {
     public class CurrencyService : ICurrencyService

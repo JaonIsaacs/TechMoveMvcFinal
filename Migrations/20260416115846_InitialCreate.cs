@@ -1,6 +1,6 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
-
+///this wea alterd somewhat to fit this vertion of the project via deltion and recreation with some seed data, refeced via :https://learn.microsoft.com/en-us/ef/core/managing-schemas/migrations/?tabs=dotnet-core-cli
 #nullable disable
 
 #pragma warning disable CA1814 // Prefer jagged arrays over multidimensional

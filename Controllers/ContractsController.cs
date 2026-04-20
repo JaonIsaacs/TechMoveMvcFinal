@@ -36,14 +36,14 @@ namespace TechMove.Controllers
             _logger = logger;
             _environment = environment;
 
-            // Attach all observers
+            /// Attach all observers
             foreach (var observer in _observers)
             {
                 _contractObservable.Attach(observer);
             }
         }
 
-        // GET: Contracts
+        /// GET: Contracts
         public async Task<IActionResult> Index()
         {
             var contracts = await _context.Contracts
@@ -55,7 +55,11 @@ namespace TechMove.Controllers
             return View(contracts);
         }
 
-        // GET: Contracts/Details/5
+        /// <summary>
+        /// Contracts/Details/5
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -76,14 +80,14 @@ namespace TechMove.Controllers
             return View(contract);
         }
 
-        // GET: Contracts/Create
+        /// GET: Contracts/Create
         public async Task<IActionResult> Create()
         {
             await LoadClientsAsync();
             return View();
         }
 
-        // POST: Contracts/Create
+        /// POST: Contracts/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(ContractCreateViewModel model, IFormFile? signedAgreement)
@@ -95,13 +99,13 @@ namespace TechMove.Controllers
             _logger.LogInformation("Status: {Status}", model.Status);
             _logger.LogInformation("File: {FileName}", signedAgreement?.FileName ?? "No file");
 
-            // Manual validation for dates
+            /// Manual validation for dates
             if (model.EndDate <= model.StartDate)
             {
                 ModelState.AddModelError("EndDate", "End date must be after start date.");
             }
 
-            // Validate file if uploaded
+            /// Validate file if uploaded
             if (signedAgreement != null && !_fileStorage.IsValidPdfFile(signedAgreement))
             {
                 ModelState.AddModelError("SignedAgreement", "Only PDF files up to 10MB are allowed.");
@@ -135,7 +139,7 @@ namespace TechMove.Controllers
                     Status = model.Status
                 };
 
-                // Save file if uploaded
+                /// Save file if uploaded
                 if (signedAgreement != null)
                 {
                     contract.SignedAgreementPath = await _fileStorage.SaveFileAsync(signedAgreement, "contracts");
@@ -158,7 +162,7 @@ namespace TechMove.Controllers
             }
         }
 
-        // GET: Contracts/Edit/5
+        /// GET: Contracts/Edit/5
         [Authorize]
         public async Task<IActionResult> Edit(int? id)
         {
@@ -169,7 +173,7 @@ namespace TechMove.Controllers
             }
 
             var contract = await _context.Contracts
-                .Include(c => c.Client) // Include client for validation
+                .Include(c => c.Client) /// Include client for validation
                 .FirstOrDefaultAsync(c => c.Id == id);
 
             if (contract == null)
@@ -194,7 +198,7 @@ namespace TechMove.Controllers
             return View(model);
         }
 
-        // POST: Contracts/Edit/5
+       /// POST: Contracts/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, ContractEditViewModel model, IFormFile? signedAgreement)
@@ -204,13 +208,13 @@ namespace TechMove.Controllers
                 return NotFound();
             }
 
-            // Manual validation for dates
+            /// Manual validation for dates
             if (model.EndDate <= model.StartDate)
             {
                 ModelState.AddModelError("EndDate", "End date must be after start date.");
             }
 
-            // Validate file if uploaded
+            /// Validate file if uploaded
             if (signedAgreement != null && !_fileStorage.IsValidPdfFile(signedAgreement))
             {
                 ModelState.AddModelError("SignedAgreement", "Only PDF files up to 10MB are allowed.");
@@ -224,7 +228,7 @@ namespace TechMove.Controllers
 
             try
             {
-                // Get original status before updating
+                /// Get original status before updating
                 var originalContract = await _context.Contracts
                     .AsNoTracking()
                     .FirstOrDefaultAsync(c => c.Id == model.Id);
@@ -236,29 +240,29 @@ namespace TechMove.Controllers
 
                 var oldStatus = originalContract.Status.ToString();
 
-                // Get the contract to update
+                /// Get the contract to update
                 var contract = await _context.Contracts.FindAsync(id);
                 if (contract == null)
                 {
                     return NotFound();
                 }
 
-                // Update properties
+                /// Update properties
                 contract.ClientId = model.ClientId;
                 contract.StartDate = model.StartDate;
                 contract.EndDate = model.EndDate;
                 contract.Status = model.Status;
 
-                // Handle file upload
+                /// Handle file upload
                 if (signedAgreement != null)
                 {
-                    // Delete old file if exists
+                    /// Delete old file if exists
                     if (!string.IsNullOrEmpty(contract.SignedAgreementPath))
                     {
                         await _fileStorage.DeleteFileAsync(contract.SignedAgreementPath);
                     }
                     
-                    // Save new file
+                    /// Save new file
                     contract.SignedAgreementPath = await _fileStorage.SaveFileAsync(signedAgreement, "contracts");
                     _logger.LogInformation("New file uploaded for contract #{Id}: {FilePath}", contract.Id, contract.SignedAgreementPath);
                 }
@@ -266,7 +270,7 @@ namespace TechMove.Controllers
                 _context.Update(contract);
                 await _context.SaveChangesAsync();
 
-                // OBSERVER PATTERN: Notify if status changed
+                /// OBSERVER PATTERN: Notify if status changed
                 var newStatus = contract.Status.ToString();
                 if (oldStatus != newStatus)
                 {
@@ -299,7 +303,7 @@ namespace TechMove.Controllers
             }
         }
 
-        // GET: Contracts/Download/5
+        ///  Contracts/Download/5
         [Authorize]
         public async Task<IActionResult> Download(int? id)
         {   
@@ -328,7 +332,7 @@ namespace TechMove.Controllers
             {
                 _logger.LogInformation("Attempting to download file for contract #{Id}: {Path}", id, contract.SignedAgreementPath);
                 
-                // Build the full path: uploads/contracts/filename.pdf
+                /// Build the full path for uploads/contracts/filename.pdf
                 var filePath = Path.Combine("uploads", contract.SignedAgreementPath);
                 
                 var fileBytes = await _fileStorage.GetFileAsync(filePath);
@@ -351,7 +355,11 @@ namespace TechMove.Controllers
             }
         }
 
-        // TEMPORARY: Debug file paths
+        /// <summary>
+        /// Debug file paths (placeholder for testing file storage issues)
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [Authorize]
         public async Task<IActionResult> DebugFilePath(int id)
         {
@@ -379,7 +387,7 @@ namespace TechMove.Controllers
                 info.AppendLine($"Full Path: {fullPath}");
                 info.AppendLine($"File Exists: {System.IO.File.Exists(fullPath)}");
                 
-                // Check uploads directory
+                /// Check uploads directory
                 var uploadsDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "contracts");
                 info.AppendLine($"\nUploads Directory: {uploadsDir}");
                 info.AppendLine($"Directory Exists: {Directory.Exists(uploadsDir)}");
@@ -398,8 +406,8 @@ namespace TechMove.Controllers
             return Content(info.ToString(), "text/plain");
         }
 
-        // GET: Contracts/Delete/5
-        [Authorize(Roles = "Admin,Manager")] // Admins and Managers can delete
+        
+        [Authorize(Roles = "Admin,Manager")] 
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -420,10 +428,10 @@ namespace TechMove.Controllers
             return View(contract);
         }
 
-        // POST: Contracts/Delete/5
+      
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin,Manager")] // Admins and Managers can delete
+        [Authorize(Roles = "Admin,Manager")] 
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var contract = await _context.Contracts
@@ -436,7 +444,6 @@ namespace TechMove.Controllers
                 return NotFound();
             }
 
-            // Validation: Cannot delete contract with service requests
             if (contract.ServiceRequests.Any())
             {
                 _logger.LogWarning("Attempted to delete contract #{Id} with {Count} existing service requests", id, contract.ServiceRequests.Count);
@@ -446,7 +453,7 @@ namespace TechMove.Controllers
 
             try
             {
-                // Delete associated file if exists
+                /// Delete associated file if exists
                 if (!string.IsNullOrEmpty(contract.SignedAgreementPath))
                 {
                     await _fileStorage.DeleteFileAsync(contract.SignedAgreementPath);

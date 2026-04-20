@@ -33,7 +33,7 @@ namespace TechMove.Controllers
             _logger = logger;
         }
 
-        // GET: ServiceRequests
+        /// GET: ServiceRequests
         public async Task<IActionResult> Index()
         {
             var serviceRequests = await _context.ServiceRequests

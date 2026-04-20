@@ -4,6 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using TechMove.Models;
 
+///basic authentication temp;ate, workes with seeder
+/// refrenced via microsft recorces
+/// https://learn.microsoft.com/en-us/aspnet/mvc/overview/older-versions-1/nerddinner/secure-applications-using-authentication-and-authorization
 
 namespace TechMove.Controllers
 {
@@ -35,7 +38,12 @@ namespace TechMove.Controllers
             return View();
         }
 
-        // POST: Account/Login
+        /// <summary>
+        /// Account/Login
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="returnUrl"></param>
+        /// <returns></returns>
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]

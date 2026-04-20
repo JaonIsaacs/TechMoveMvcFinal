@@ -19,7 +19,10 @@ namespace TechMove.Controllers
             _logger = logger;
         }
 
-        // GET: Clients
+        /// <summary>
+        /// GET: Clients
+        /// </summary>
+        /// <returns></returns>
         public async Task<IActionResult> Index()
         {
             var clients = await _context.Clients
@@ -28,13 +31,20 @@ namespace TechMove.Controllers
             return View(clients);
         }
 
-        // GET: Clients/Create
+        /// <summary>
+        /// Clients/Create
+        /// </summary>
+        /// <returns></returns>
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Clients/Create
+        /// <summary>
+        /// Clients/Create
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(ClientViewModel model)
@@ -58,8 +68,12 @@ namespace TechMove.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: Clients/Delete/5
-        [Authorize(Roles = "Admin")] // Only Admins can delete
+        /// <summary>
+        /// Clients/Delete/5
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [Authorize(Roles = "Admin")] /// Only Admins can delete
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -79,10 +93,14 @@ namespace TechMove.Controllers
             return View(client);
         }
 
-        // POST: Clients/Delete/5
+        /// <summary>
+        /// Clients/Delete/5
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")] // Only Admins can delete
+        [Authorize(Roles = "Admin")] /// Only Admins can delete
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var client = await _context.Clients
@@ -94,7 +112,7 @@ namespace TechMove.Controllers
                 return NotFound();
             }
 
-            // Validation: Cannot delete client with contracts
+            /// Validation: Cannot delete client with contracts for saftey
             if (client.Contracts.Any())
             {
                 _logger.LogWarning("Attempted to delete client #{Id} with {Count} existing contracts", id, client.Contracts.Count);
