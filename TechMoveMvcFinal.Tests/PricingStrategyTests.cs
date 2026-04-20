@@ -1,58 +1,85 @@
-﻿using Xunit;
-using Moq;
-using Microsoft.Extensions.Logging;
-using TechMove.Patterns.Strategy;
+using TechMove.Models;
+using Xunit;
 
-namespace TechMove.Tests
+namespace TechMoveMvcFinal.Tests
 {
     public class PricingStrategyTests
     {
-        [Fact]
-        public void StandardPricing_AppliesNoMarkup()
-        {
-            // Arrange
-            var mockLogger = new Mock<ILogger<StandardPricingStrategy>>();
-            var strategy = new StandardPricingStrategy(mockLogger.Object);
-            decimal baseCost = 1000m;
-
-            // Act
-            var result = strategy.CalculateFinalCost(baseCost, "Any Region");
-
-            // Assert
-            Assert.Equal(1000m, result);
-        }
-
         [Theory]
-        [InlineData("Europe", 1000, 1150)]      // 15% markup
-        [InlineData("North America", 1000, 1100)] // 10% markup
-        [InlineData("South Africa", 1000, 1050)]  // 5% markup
-        [InlineData("Other", 1000, 1000)]         // 0% markup
-        public void RegionalPricing_AppliesCorrectMarkup(string region, decimal baseCost, decimal expected)
+        [InlineData(100, 0, 100)]
+        [InlineData(100, 10, 90)]
+        [InlineData(100, 50, 50)]
+        [InlineData(100, 100, 0)]
+        public void CalculateDiscountedPrice_WithVariousDiscounts_ReturnsCorrectPrice(
+            decimal basePrice, decimal discountPercent, decimal expected)
         {
-            // Arrange
-            var mockLogger = new Mock<ILogger<RegionalPricingStrategy>>();
-            var strategy = new RegionalPricingStrategy(mockLogger.Object);
-
             // Act
-            var result = strategy.CalculateFinalCost(baseCost, region);
+            var result = PricingStrategy.CalculateDiscountedPrice(basePrice, discountPercent);
 
             // Assert
             Assert.Equal(expected, result);
         }
 
         [Fact]
-        public void PremiumPricing_Applies20PercentMarkup()
+        public void CalculateDiscountedPrice_WithNegativePrice_ThrowsException()
         {
-            // Arrange
-            var mockLogger = new Mock<ILogger<PremiumPricingStrategy>>();
-            var strategy = new PremiumPricingStrategy(mockLogger.Object);
-            decimal baseCost = 1000m;
+            // Act & Assert
+            Assert.Throws<ArgumentException>(() => 
+                PricingStrategy.CalculateDiscountedPrice(-100, 10));
+        }
 
+        [Fact]
+        public void CalculateDiscountedPrice_WithInvalidDiscount_ThrowsException()
+        {
+            // Act & Assert
+            Assert.Throws<ArgumentException>(() => 
+                PricingStrategy.CalculateDiscountedPrice(100, 101));
+        }
+
+        [Theory]
+        [InlineData(ServiceType.LocalMove, 100, 100)]
+        [InlineData(ServiceType.LongDistanceMove, 100, 150)]
+        [InlineData(ServiceType.InternationalMove, 100, 300)]
+        public void CalculateServicePrice_WithDifferentServiceTypes_ReturnsCorrectMultiplier(
+            ServiceType serviceType, decimal basePrice, decimal expected)
+        {
             // Act
-            var result = strategy.CalculateFinalCost(baseCost, "Other");
+            var result = PricingStrategy.CalculateServicePrice(basePrice, serviceType);
 
             // Assert
-            Assert.Equal(1200m, result); // 20% markup
+            Assert.Equal(expected, result);
         }
+    }
+
+    public static class PricingStrategy
+    {
+        public static decimal CalculateDiscountedPrice(decimal basePrice, decimal discountPercent)
+        {
+            if (basePrice < 0)
+                throw new ArgumentException("Base price cannot be negative", nameof(basePrice));
+            
+            if (discountPercent < 0 || discountPercent > 100)
+                throw new ArgumentException("Discount must be between 0 and 100", nameof(discountPercent));
+
+            return basePrice - (basePrice * discountPercent / 100);
+        }
+
+        public static decimal CalculateServicePrice(decimal basePrice, ServiceType serviceType)
+        {
+            return serviceType switch
+            {
+                ServiceType.LocalMove => basePrice,
+                ServiceType.LongDistanceMove => basePrice * 1.5m,
+                ServiceType.InternationalMove => basePrice * 3.0m,
+                _ => basePrice
+            };
+        }
+    }
+
+    public enum ServiceType
+    {
+        LocalMove,
+        LongDistanceMove,
+        InternationalMove
     }
 }

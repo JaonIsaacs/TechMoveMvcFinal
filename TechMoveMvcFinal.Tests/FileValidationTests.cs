@@ -1,11 +1,12 @@
-﻿using Moq;
+using Moq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System.Text;
 using Microsoft.AspNetCore.Hosting;
 using TechMove.Services;
+using Xunit;
 
-namespace TechMove.Tests
+namespace TechMoveMvcFinal.Tests
 {
     public class FileValidationTests
     {
