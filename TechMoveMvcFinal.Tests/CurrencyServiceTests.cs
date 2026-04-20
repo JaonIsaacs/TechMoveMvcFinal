@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Moq.Protected;
 using TechMove.Services;
+using Xunit;
 
 namespace TechMove.Tests
 {

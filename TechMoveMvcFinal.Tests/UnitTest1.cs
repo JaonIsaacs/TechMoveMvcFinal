@@ -1,4 +1,6 @@
-﻿namespace TechMove.Tests
+﻿using Xunit;
+
+namespace TechMove.Tests
 {
     public class UnitTest1
     {
