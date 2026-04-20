@@ -1,0 +1,135 @@
+@model IEnumerable<TechMove.Models.Contract>
+@using TechMove.Models
+
+@{
+    ViewData["Title"] = "Contracts";
+}
+
+<div class="container mt-4 fade-in">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>
+            <i class="bi bi-file-earmark-text"></i> Contracts
+        </h1>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Create New Contract
+        </a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="empty-state">
+            <i class="bi bi-file-earmark-text"></i>
+            <h4>No Contracts Found</h4>
+            <p class="text-muted">Create your first contract to get started</p>
+            <a asp-action="Create" class="btn btn-primary mt-3">
+                <i class="bi bi-plus-circle"></i> Create Your First Contract
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th><i class="bi bi-hash"></i> ID</th>
+                        <th><i class="bi bi-person"></i> Client</th>
+                        <th><i class="bi bi-globe"></i> Region</th>
+                        <th><i class="bi bi-calendar-event"></i> Start Date</th>
+                        <th><i class="bi bi-calendar-check"></i> End Date</th>
+                        <th class="text-center"><i class="bi bi-diagram-3"></i> Status</th>
+                        <th class="text-center"><i class="bi bi-list-check"></i> Requests</th>
+                        <th class="text-center" style="min-width: 200px;"><i class="bi bi-gear"></i> Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var contract in Model)
+                    {
+                        <tr>
+                            <td><strong>#@contract.Id</strong></td>
+                            <td>
+                                <i class="bi bi-person-circle text-primary"></i>
+                                @contract.Client.Name
+                            </td>
+                            <td>
+                                <span class="badge 
+                                    @(contract.Client.Region switch {
+                                        "Europe" => "bg-primary",
+                                        "North America" => "bg-success",
+                                        "South Africa" => "bg-warning text-dark",
+                                        _ => "bg-secondary"
+                                    })">
+                                    @contract.Client.Region
+                                </span>
+                            </td>
+                            <td>@contract.StartDate.ToString("yyyy-MM-dd")</td>
+                            <td>@contract.EndDate.ToString("yyyy-MM-dd")</td>
+                            <td class="text-center">
+                                <span class="badge 
+                                    @(contract.Status switch
+                                    {
+                                        ContractStatus.Draft => "bg-secondary",
+                                        ContractStatus.Active => "bg-success",
+                                        ContractStatus.Expired => "bg-danger",
+                                        ContractStatus.OnHold => "bg-warning text-dark",
+                                        _ => "bg-secondary"
+                                    })">
+                                    @if (contract.Status == ContractStatus.Active)
+                                    {
+                                        <i class="bi bi-check-circle"></i>
+                                    }
+                                    else if (contract.Status == ContractStatus.Expired)
+                                    {
+                                        <i class="bi bi-x-circle"></i>
+                                    }
+                                    else if (contract.Status == ContractStatus.OnHold)
+                                    {
+                                        <i class="bi bi-pause-circle"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-file-earmark"></i>
+                                    }
+                                    @contract.Status
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-info">@contract.ServiceRequests.Count</span>
+                            </td>
+                            <td class="text-center">
+                                <div class="action-buttons justify-content-center">
+                                    <a asp-action="Details" asp-route-id="@contract.Id" class="btn btn-sm btn-info" title="View Details">
+                                        <i class="bi bi-eye-fill"></i>
+                                    </a>
+                                    <a asp-action="Edit" asp-route-id="@contract.Id" class="btn btn-sm btn-warning" title="Edit">
+                                        <i class="bi bi-pencil-fill"></i>
+                                    </a>
+                                    @if (contract.Status == ContractStatus.Active || contract.Status == ContractStatus.Draft)
+                                    {
+                                        <a asp-controller="ServiceRequests" asp-action="Create" asp-route-contractId="@contract.Id" 
+                                           class="btn btn-sm btn-success" title="Add Service Request">
+                                            <i class="bi bi-plus-circle-fill"></i>
+                                        </a>
+                                    }
+                                    @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
+                                    {
+                                        <a asp-action="Delete" asp-route-id="@contract.Id" class="btn btn-sm btn-danger" title="Delete">
+                                            <i class="bi bi-trash-fill"></i>
+                                        </a>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mt-3">
+            <p class="text-muted">
+                <i class="bi bi-info-circle"></i> 
+                Showing <strong>@Model.Count()</strong> contract(s)
+            </p>
+        </div>
+    }
+</div>

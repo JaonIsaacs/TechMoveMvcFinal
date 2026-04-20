@@ -1,0 +1,83 @@
+﻿@{
+    ViewData["Title"] = "Home";
+}
+
+@if (User.Identity?.IsAuthenticated ?? false)
+{
+    <div class="container my-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #e0e7ff 0%, #f0f4ff 100%);">
+                    <div class="card-body p-4">
+                        <h4 class="mb-3 fw-bold" style="color: var(--primary-color);">
+                            <span class="nav-icon">⚡</span> Quick Actions
+                        </h4>
+                        <div class="d-flex gap-3 flex-wrap">
+                            <a asp-controller="Clients" asp-action="Create" class="btn btn-primary">
+                                <span class="nav-icon">👤</span> New Client
+                            </a>
+                            <a asp-controller="Contracts" asp-action="Create" class="btn btn-success">
+                                <span class="nav-icon">📄</span> New Contract
+                            </a>
+                            <a asp-controller="ServiceRequests" asp-action="Create" class="btn btn-info">
+                                <span class="nav-icon">🔧</span> New Service Request
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<div class="text-center py-5">
+    <div class="container">
+        <h1 class="display-4 fw-bold mb-3">Welcome to TechMove</h1>
+        <p class="lead text-muted mb-4">Streamline your technology moves with ease</p>
+        
+        @if (!User.Identity?.IsAuthenticated ?? true)
+        {
+            <div class="mt-4">
+                <a asp-controller="Account" asp-action="Login" class="btn btn-primary btn-lg px-5">Get Started</a>
+            </div>
+        }
+        else
+        {
+            <div class="mt-4">
+                <p class="text-success fs-5">You're all set! Start managing your moves.</p>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="container my-5">
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="mb-3 text-primary fs-1">📦</div>
+                    <h5 class="card-title">Easy Planning</h5>
+                    <p class="card-text text-muted">Plan and organize your technology moves efficiently</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="mb-3 text-primary fs-1">🚚</div>
+                    <h5 class="card-title">Track Progress</h5>
+                    <p class="card-text text-muted">Monitor your move status in real-time</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="mb-3 text-primary fs-1">✅</div>
+                    <h5 class="card-title">Stay Organized</h5>
+                    <p class="card-text text-muted">Keep everything in one secure place</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

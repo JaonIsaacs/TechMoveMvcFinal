@@ -1,0 +1,102 @@
+@model IEnumerable<TechMove.Models.Client>
+@using Microsoft.AspNetCore.Identity
+@using TechMove.Models
+@inject UserManager<ApplicationUser> UserManager
+
+@{
+    ViewData["Title"] = "Clients";
+    var currentUser = await UserManager.GetUserAsync(User);
+    var isAdmin = User.IsInRole("Admin");
+}
+
+<div class="container mt-4 fade-in">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>
+            <i class="bi bi-people"></i> Clients
+        </h1>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Create New Client
+        </a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="empty-state">
+            <i class="bi bi-people"></i>
+            <h4>No Clients Found</h4>
+            <p class="text-muted">Get started by creating your first client</p>
+            <a asp-action="Create" class="btn btn-primary mt-3">
+                <i class="bi bi-plus-circle"></i> Create Your First Client
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th><i class="bi bi-hash"></i> ID</th>
+                        <th><i class="bi bi-person"></i> Name</th>
+                        <th><i class="bi bi-globe"></i> Region</th>
+                        <th class="text-center"><i class="bi bi-file-text"></i> Contracts</th>
+                        <th class="text-center"><i class="bi bi-gear"></i> Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var client in Model)
+                    {
+                        <tr>
+                            <td><strong>#@client.Id</strong></td>
+                            <td>
+                                <i class="bi bi-person-circle text-primary"></i>
+                                @client.Name
+                            </td>
+                            <td>
+                                <span class="badge 
+                                    @(client.Region switch {
+                                        "Europe" => "bg-primary",
+                                        "North America" => "bg-success",
+                                        "South Africa" => "bg-warning text-dark",
+                                        _ => "bg-secondary"
+                                    })">
+                                    <i class="bi bi-geo-alt"></i> @client.Region
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-info">@client.Contracts.Count</span>
+                            </td>
+                            <td class="text-center">
+                                <div class="action-buttons justify-content-center">
+                                    <a asp-controller="Contracts" asp-action="Create" asp-route-clientId="@client.Id" 
+                                       class="btn btn-sm btn-success" title="Create Contract">
+                                        <i class="bi bi-file-earmark-plus"></i> New Contract
+                                    </a>
+                                     
+                                    @if (isAdmin)
+                                    {
+                                        <a asp-action="Delete" asp-route-id="@client.Id" 
+                                           class="btn btn-sm btn-danger" title="Delete Client">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mt-3">
+            <p class="text-muted">
+                <i class="bi bi-info-circle"></i> 
+                Showing <strong>@Model.Count()</strong> client(s)
+                @if (isAdmin)
+                {
+                    <span class="text-danger">| <i class="bi bi-shield-check"></i> Admin: Delete permissions enabled</span>
+                }
+            </p>
+        </div>
+    }
+</div>

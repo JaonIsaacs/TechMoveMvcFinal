@@ -1,0 +1,159 @@
+@model TechMove.Controllers.ContractEditViewModel
+@using TechMove.Models
+
+@{
+    ViewData["Title"] = "Edit Contract";
+}
+
+@if (Model == null)
+{
+    <div class="container mt-4">
+        <div class="alert alert-danger">
+            <h4>Error: Contract not found</h4>
+            <p>The requested contract could not be loaded.</p>
+            <a asp-action="Index" class="btn btn-primary">Back to Contracts</a>
+        </div>
+    </div>
+}
+else
+{
+    <div class="container mt-4 fade-in">
+        <div class="mb-4">
+            <h1>
+                <i class="bi bi-pencil-square"></i> Edit Contract #@Model.Id
+            </h1>
+            <p class="text-muted">Update contract information and manage signed agreements</p>
+        </div>
+
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="bi bi-info-circle"></i> Contract Details
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form asp-action="Edit" asp-route-id="@Model.Id" method="post" enctype="multipart/form-data">
+                            <input type="hidden" asp-for="Id" />
+                            <input type="hidden" asp-for="SignedAgreementPath" />
+                            
+                            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                            <div class="mb-4">
+                                <label asp-for="ClientId" class="form-label">
+                                    <i class="bi bi-person"></i> Client
+                                </label>
+                                <select asp-for="ClientId" class="form-select" asp-items="ViewBag.ClientsList">
+                                    <option value="">-- Select Client --</option>
+                                </select>
+                                <span asp-validation-for="ClientId" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-4">
+                                <label asp-for="StartDate" class="form-label">
+                                    <i class="bi bi-calendar-event"></i> Start Date
+                                </label>
+                                <input asp-for="StartDate" class="form-control" type="date" />
+                                <span asp-validation-for="StartDate" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-4">
+                                <label asp-for="EndDate" class="form-label">
+                                    <i class="bi bi-calendar-check"></i> End Date
+                                </label>
+                                <input asp-for="EndDate" class="form-control" type="date" />
+                                <span asp-validation-for="EndDate" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-4">
+                                <label asp-for="Status" class="form-label">
+                                    <i class="bi bi-diagram-3"></i> Status
+                                </label>
+                                <select asp-for="Status" class="form-select" asp-items="Html.GetEnumSelectList<ContractStatus>()">
+                                </select>
+                                <span asp-validation-for="Status" class="text-danger"></span>
+                                <small class="form-text text-muted">
+                                    <i class="bi bi-info-circle"></i> Changing status will trigger Observer pattern notifications
+                                </small>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="signedAgreement" class="form-label">
+                                    <i class="bi bi-file-earmark-pdf"></i> Signed Agreement (PDF)
+                                </label>
+                                
+                                @if (!string.IsNullOrEmpty(Model.SignedAgreementPath))
+                                {
+                                    <div class="alert alert-info">
+                                        <i class="bi bi-file-pdf"></i> <strong>Current file uploaded</strong>
+                                        <br>
+                                        <a asp-action="Download" asp-route-id="@Model.Id" target="_blank" class="btn btn-sm btn-info mt-2">
+                                            <i class="bi bi-download"></i> Download Current PDF
+                                        </a>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="alert alert-warning">
+                                        <i class="bi bi-exclamation-triangle"></i> No file currently uploaded
+                                    </div>
+                                }
+                                
+                                <input type="file" name="signedAgreement" id="signedAgreement" class="form-control" accept=".pdf" />
+                                <small class="form-text text-muted">
+                                    <i class="bi bi-info-circle"></i> Upload a new PDF to replace the existing file (max 10MB, PDF only)
+                                </small>
+                            </div>
+
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-check-circle"></i> Save Changes
+                                </button>
+                                <a asp-action="Index" class="btn btn-secondary">
+                                    <i class="bi bi-x-circle"></i> Cancel
+                                </a>
+                                <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-info">
+                                    <i class="bi bi-eye"></i> View Details
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="alert alert-warning">
+                    <h6 class="alert-heading">
+                        <i class="bi bi-exclamation-triangle"></i> Important Notes
+                    </h6>
+                    <hr>
+                    <ul class="mb-0 small">
+                        <li>End date must be after start date</li>
+                        <li>Only PDF files are accepted</li>
+                        <li>Maximum file size: 10MB</li>
+                        <li>Status changes trigger notifications</li>
+                        <li>Files are stored with UUID naming</li>
+                    </ul>
+                </div>
+
+                <div class="alert alert-info">
+                    <h6 class="alert-heading">
+                        <i class="bi bi-info-circle"></i> Status Information
+                    </h6>
+                    <hr>
+                    <ul class="mb-0 small">
+                        <li><strong>Draft:</strong> Initial contract state</li>
+                        <li><strong>Active:</strong> Contract is in effect</li>
+                        <li><strong>On Hold:</strong> Temporarily suspended</li>
+                        <li><strong>Expired:</strong> Contract has ended</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

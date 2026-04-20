@@ -1,0 +1,62 @@
+@model TechMove.Controllers.ServiceRequestCreateViewModel
+
+@{
+    ViewData["Title"] = "Create Service Request";
+    var currentRate = ViewBag.CurrentExchangeRate as decimal? ?? 18.50m;
+    var apiUnavailable = ViewBag.ApiUnavailable as bool? ?? false;
+}
+
+<h1>Create Service Request</h1>
+
+@if (apiUnavailable)
+{
+    <div class="alert alert-warning" role="alert">
+        <strong>?? Currency API Unavailable</strong> - Using fallback rate of R18.50/USD
+    </div>
+}
+else
+{
+    <div class="alert alert-info" role="alert">
+        <strong>Current Exchange Rate:</strong> R@currentRate.ToString("N2") per USD
+    </div>
+}
+
+<hr />
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            
+            <div class="form-group mb-3">
+                <label asp-for="ContractId" class="control-label"></label>
+                <select asp-for="ContractId" class="form-control" asp-items="ViewBag.ContractsList">
+                    <option value="">-- Select Contract --</option>
+                </select>
+                <span asp-validation-for="ContractId" class="text-danger"></span>
+                <small class="form-text text-muted">Only Active or Draft contracts can have service requests.</small>
+            </div>
+            
+            <div class="form-group mb-3">
+                <label asp-for="Description" class="control-label"></label>
+                <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            
+            <div class="form-group mb-3">
+                <label asp-for="CostUsd" class="control-label"></label>
+                <input asp-for="CostUsd" class="form-control" type="number" step="0.01" />
+                <span asp-validation-for="CostUsd" class="text-danger"></span>
+                <small class="form-text text-muted">Will be converted to ZAR using current exchange rate and regional pricing strategy.</small>
+            </div>
+            
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+                <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
